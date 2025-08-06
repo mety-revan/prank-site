@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Enter Site</title>
+<style>
+  html, body {
+    margin:0; padding:0; width:100%; height:100%;
+    overflow: hidden;
+    font-family: monospace, monospace;
+    user-select: none;
+  }
+  #startScreen, #prankScreen, #endScreen {
+    position: fixed;
+    top:0; left:0;
+    width: 100%; height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+  }
+  #startScreen {
+    background: white;
+    color: black;
+  }
+  #startScreen button {
+    font-size: 2em;
+    padding: 1em 2em;
+    cursor: pointer;
+  }
+  #prankScreen {
+    background: black;
+    color: #00ff00;
+    display: none;
+  }
+  #prankScreen h1 {
+    font-size: 4em;
+    text-shadow: 0 0 10px #00ff00;
+    animation: flicker 1.5s infinite;
+    margin: 0.2em 0;
+  }
+  #prankScreen p {
+    font-size: 1.5em;
+    margin: 0.1em 0;
+  }
+  #endScreen {
+    background: black;
+    color: white;
+    font-size: 3em;
+    display: none;
+  }
+  @keyframes flicker {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+</style>
+</head>
+<body>
+
+<div id="startScreen">
+  <div>To enter the site please click</div>
+  <button id="enterBtn">Enter</button>
+</div>
+
+<div id="prankScreen" tabindex="0">
+  <h1>⚠️ SYSTEM COMPROMISED ⚠️</h1>
+  <p>Unauthorized access detected.</p>
+  <p>Your system is under control of <strong>ShadowX</strong>.</p>
+  <p>Terminate all activities immediately.</p>
+</div>
+
+<div id="endScreen">
+  <div>It was a prank, now get out!</div>
+</div>
+
+<script>
+  const startScreen = document.getElementById('startScreen');
+  const prankScreen = document.getElementById('prankScreen');
+  const endScreen = document.getElementById('endScreen');
+  const enterBtn = document.getElementById('enterBtn');
+
+  function blockKeys(e) {
+    const forbiddenKeys = [
+      'F5', 'F12', 'Escape', 'Tab', 'ContextMenu',
+      'r', 'w', 'a', 's', 'd', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'
+    ];
+    if (
+      forbiddenKeys.includes(e.key) ||
+      (e.ctrlKey && ['r', 'w'].includes(e.key.toLowerCase())) ||
+      (e.altKey && e.key === 'F4')
+    ) {
+      e.preventDefault();
+      return false;
+    }
+  }
+
+  function disableInputs() {
+    document.addEventListener('keydown', blockKeys);
+    document.addEventListener('contextmenu', e => e.preventDefault());
+  }
+  function enableInputs() {
+    document.removeEventListener('keydown', blockKeys);
+    document.removeEventListener('contextmenu', e => e.preventDefault());
+  }
+
+  function requestPointerLock() {
+    prankScreen.requestPointerLock = prankScreen.requestPointerLock || prankScreen.mozRequestPointerLock;
+    if (prankScreen.requestPointerLock) {
+      prankScreen.requestPointerLock();
+    }
+  }
+
+  enterBtn.onclick = () => {
+    // Hide start screen
+    startScreen.style.display = 'none';
+
+    // Wait 5 seconds, then show prank screen
+    setTimeout(() => {
+      prankScreen.style.display = 'flex';
+      prankScreen.focus();
+
+      disableInputs();
+      requestPointerLock();
+
+      // After 15 minutes, show end screen and restore control
+      setTimeout(() => {
+        prankScreen.style.display = 'none';
+        endScreen.style.display = 'flex';
+        enableInputs();
+
+        if (document.exitPointerLock) {
+          document.exitPointerLock();
+        }
+      }, 15 * 60 * 1000); // 15 minutes
+    }, 5000);
+  };
+</script>
+
+</body>
+</html>
